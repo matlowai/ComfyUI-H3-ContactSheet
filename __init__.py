@@ -129,9 +129,16 @@ class H3ContactSheetDecode(io.ComfyNode):
             video = video.unsqueeze(2)
         views = []
         for s in range(video.shape[2]):
-            frames = vae.decode(video[:, :, s:s + 1])  # [1, 1|T, H, W, C]
+            # a single latent frame is OFF the VAE's 17k+5 grid (minimum legal
+            # clip = 2 latent tokens = 5 px frames) and decodes with heavy
+            # artifacts. Duplicate the slot token to a legal 2-token clip and
+            # keep pixel frame 0 — measured cleaner than any T=1 path.
+            slot = video[:, :, s:s + 1]
+            frames = vae.decode(torch.cat([slot, slot], dim=2))  # [1, T, H, W, C]
             if frames.ndim == 5:
                 frames = frames[:, 0]
+            elif frames.shape[0] > 1:  # some paths return frames on batch dim
+                frames = frames[:1]
             views.append(frames[0])
         batch = torch.stack(views)                     # [5, H, W, C]
         sheet = torch.cat(list(batch), dim=1)[None]    # [1, H, 5W, C]
