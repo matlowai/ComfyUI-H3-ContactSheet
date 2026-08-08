@@ -37,8 +37,11 @@ Sampler settings that match the LoRA's training: `res_multistep` /
 `simple`, 28 steps, denoise 1.0, LoRA strength 1.0 (0.7 favors scene
 fidelity over rotation).
 
-Sizes 512 / 1024 / 2048 per view all work (~10 s / ~57 s / ~227 s on an
-RTX PRO 6000 at 450 W). VRAM floor is the base model, ~41 GiB.
+Sizes 512 / 1024 / 2048 per view all work. Measured through this node on
+an RTX PRO 6000 (450 W cap): 2048 sheet in **175 s** (~20% faster than
+the reference sampler), peak **~54 GiB** total VRAM with the full model
+set resident under --gpu-only; 512 sheets in ~25 s warm. Output verified
+artifact-free at 2048 (flat-region crops).
 
 `example_api_workflow.py` submits a complete graph over the ComfyUI API if
 you'd rather script it.
