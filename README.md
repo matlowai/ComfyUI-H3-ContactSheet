@@ -43,6 +43,24 @@ RTX PRO 6000 at 450 W). VRAM floor is the base model, ~41 GiB.
 `example_api_workflow.py` submits a complete graph over the ComfyUI API if
 you'd rather script it.
 
+## Known issue: upstream VAE decode quality (2026-08-07)
+
+Sheet fidelity in ComfyUI is currently limited by an upstream bug in the
+H3 video VAE **decode** (not this node, not the LoRA). Measured on one
+image + the same fp16 VAE file, encode->decode roundtrip mean abs error:
+
+| path | error |
+|---|---|
+| reference implementation (ai-toolkit extension) | **4.6** |
+| ComfyUI decode, tiled (its default) | 31.4 — visible 256px tile seams / banding |
+| ComfyUI decode, untiled | 93.7 — strong ViT patch-grid artifacts |
+
+ComfyUI's **encode** is fine (latent cosine 0.9997 vs reference). Both
+implementations use the same 256px/64px-overlap windowing design; comfy's
+version of it mis-blends. Upstream issue filed. Until it's fixed, use the
+[CLI](https://github.com/matlowai/h3-contact-sheet) for final-quality
+sheets; node output is fine for composition/iteration.
+
 ## Honest notes
 
 - Verified equivalent to the research sampler (matched checkpoint / ref /

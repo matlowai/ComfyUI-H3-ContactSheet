@@ -125,6 +125,8 @@ class H3ContactSheetDecode(io.ComfyNode):
     def execute(cls, vae, samples) -> io.NodeOutput:
         latent = samples["samples"]
         video = latent.unbind()[0] if hasattr(latent, "unbind") else latent
+        if video.ndim == 4:  # plain image latent (e.g. from stock VAEEncode)
+            video = video.unsqueeze(2)
         views = []
         for s in range(video.shape[2]):
             frames = vae.decode(video[:, :, s:s + 1])  # [1, 1|T, H, W, C]
