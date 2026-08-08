@@ -38,10 +38,17 @@ Sampler settings that match the LoRA's training: `res_multistep` /
 fidelity over rotation).
 
 Sizes 512 / 1024 / 2048 per view all work. Measured through this node on
-an RTX PRO 6000 (450 W cap): 2048 sheet in **175 s** (~20% faster than
-the reference sampler), peak **~54 GiB** total VRAM with the full model
-set resident under --gpu-only; 512 sheets in ~25 s warm. Output verified
-artifact-free at 2048 (flat-region crops).
+an RTX PRO 6000 (450 W cap, --gpu-only so everything stays in VRAM):
+2048 sheet in **175 s** (~20% faster than the reference sampler), peak
+~54 GiB VRAM; 512 sheets in ~25 s warm. Output verified artifact-free at
+2048 (flat-region crops).
+
+**Smaller GPUs:** those numbers are NOT a requirement. Stock ComfyUI
+offloads/streams weights to system RAM on smaller cards, exactly as with
+any big model — if your setup runs MiniMax-H3 video generation at all,
+it runs this node (a sheet is computationally a ~17-frame clip). Expect
+slower steps and a hefty system-RAM footprint (~50 GB weights mirror),
+as usual for H3 on consumer cards.
 
 `example_api_workflow.py` submits a complete graph over the ComfyUI API if
 you'd rather script it.
